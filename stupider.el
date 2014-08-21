@@ -5,7 +5,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Task list
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; FIX: Center align
+;; FIX: Center align text
 ;; FIX: Pause on question marks and long words etc.
 ;; TODO: Read from URL
 ;; TODO: Keep history
@@ -90,7 +90,7 @@ Words from BUFFER are displayed individually and progressed by an adjustable tim
   (setq tokeniser "[^ \n]+")
   (setq *source-buffer* (make-indirect-buffer source-buffer "source buffer"))
   (setq stupider-frame
-        (make-frame '((height . 1)
+        (make-frame `((height . 1)
                       (width . 20)
                       (top . 100)
                       (mode-line-format . nil)
@@ -104,19 +104,23 @@ Words from BUFFER are displayed individually and progressed by an adjustable tim
                       (line-spacing . 0)
                       (unsplittable . t)
                       (fill-column . 30))))
+  (run-at-time "0.2 seconds" nil
+               ;; The delayed execution is a bug workaround
+               ;; for an incorrectly calculated length.
+               (lambda ()
+                 (center-frame stupider-frame)))
   (setq stupider-buffer (get-buffer-create stupider-buffer-name))
+        
   (with-current-buffer *source-buffer*
     (goto-char (point-min))
     (with-selected-frame stupider-frame
-      (center-frame stupider-frame)
-      (display-buffer stupider-buffer '((display-buffer-same-window)))
-    (stupider--do
+      (display-buffer stupider-buffer '((display-buffer-same-window)))))
+  (stupider--do
      (fundamental-mode)
      (setq buffer-read-only t)
      (use-local-map stupider-map)
-     (set-frame-font (font-spec :size 50))
-     ))
-  (stupider--start)))
+     (set-frame-font (font-spec :size 50)))
+     (stupider--start))
 
 (defmacro stupider--do (&rest body)
   "Do something in the speed reading frame."
