@@ -61,8 +61,8 @@
   "Center `frame'."
   (interactive)
   (redisplay)
-  (center-frame-horizontally)
-  (center-frame-vertically))
+  (center-frame-horizontally frame)
+  (center-frame-vertically frame))
 
 (defvar stupider-map
   (let ((km (make-sparse-keymap)))
