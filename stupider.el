@@ -26,7 +26,7 @@
 (require 'cl)
 
 (defvar stupider-buffer-name "stupider" "The name of the buffer created by `stupider'.")
-(defvar pause-time 0.2)
+(defvar pause-time 0.16)
 
 (defun center-frame-horizontally (&optional frame)
   "Center `frame' along the x axis."
@@ -38,11 +38,7 @@
          (required-left (max 0 (/ (- screen-width
                                      frame-width
                                      estimated-border-width) 2))))
-    (set-frame-parameter f 'left required-left)
-    (message (format "SCR: %d FR: %d RL: %d"
-                     screen-width
-                     frame-width
-                     required-left))))
+    (set-frame-parameter f 'left required-left)))
 
 (defun center-frame-vertically (&optional frame)
   "Center `frame' along the y axis."
@@ -52,8 +48,8 @@
          (frame-height (frame-pixel-height f))
          (estimated-border-height 16)
          (required-top (max 0 (/ (- screen-height
-                                     frame-height
-                                     estimated-border-height) 2))))
+                                    frame-height
+                                    estimated-border-height) 2))))
     (set-frame-parameter f 'top required-top)))
 
 (defun center-frame (&optional frame)
@@ -109,17 +105,17 @@ Words from BUFFER are displayed individually and progressed by an adjustable tim
                (lambda ()
                  (center-frame stupider-frame)))
   (setq stupider-buffer (get-buffer-create stupider-buffer-name))
-        
+  
   (with-current-buffer *source-buffer*
     (goto-char (point-min))
     (with-selected-frame stupider-frame
       (display-buffer stupider-buffer '((display-buffer-same-window)))))
   (stupider--do
-     (fundamental-mode)
-     (setq buffer-read-only t)
-     (use-local-map stupider-map)
-     (set-frame-font (font-spec :size 50)))
-     (stupider--start))
+   (fundamental-mode)
+   (setq buffer-read-only t)
+   (use-local-map stupider-map)
+   (set-frame-font (font-spec :size 50)))
+  (stupider--start))
 
 (defmacro stupider--do (&rest body)
   "Do something in the speed reading frame."
