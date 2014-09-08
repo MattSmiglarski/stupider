@@ -5,8 +5,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Task list
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; FIX: Center align text
-;; FIX: Pause on question marks and long words etc.
+;; IDEA: Use syntax tables
 ;; TODO: Read from URL
 ;; TODO: Keep history
 ;; IDEA: Read from RSS
@@ -91,7 +90,7 @@ Words from BUFFER are displayed individually and progressed by an adjustable tim
   (setq *source-buffer* (make-indirect-buffer source-buffer "source buffer"))
   (setq stupider-frame
         (make-frame `((height . 1)
-                      (width . 20)
+                      (width . 30)
                       (top . 100)
                       (mode-line-format . nil)
                       (cursor-type . nil)
@@ -220,12 +219,22 @@ whether paused or not."
 (defun stupider--punctuation-weighting (str)
   "Returns the punctuation delay modifier for `STR', where 0 is a request to stop."
   (if str
-      (case (last (car (last (string-to-list str))))
-        (?, 1.4)
-        (?\; 1.6)
-        (?. 2)
-        (?\: 2.2)
-        (t 1))
+      (*
+       ;; last character modifier -- pause for questions, etc.
+       (case (last (car (last (string-to-list str))))
+         (?, 1.4)
+         (?\; 1.6)
+         (?. 2)
+         (?\: 2.2)
+         (?\? 2.2)
+         (t 1))
+       ;; string length modifier -- pause longer for long words
+       (let ((long-word-length 12) ;; definition of a long word.
+             (extra-pause-mutiplier 0.5)
+             (len (length str)))
+         (+ 1 (* extra-pause-mutiplier
+                 (/ (- len (% len long-word-length))
+                    long-word-length)))))
     0))
 
 (defun stupider--log ()
