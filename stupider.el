@@ -1,14 +1,8 @@
 ;; stupider.el --- Create speed reading frames for buffers.
 
-;; No license 2014.
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Task list
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; IDEA: Use syntax tables
-;; TODO: Read from URL
-;; TODO: Keep history
-;; IDEA: Read from RSS
 ;; TODO: Optimise width
 ;; TODO: Previous word
 ;; IDEA: Progress bar
@@ -18,11 +12,11 @@
 ;; TODO: Improve punctuation function.
 ;; IDEA: Shortcuts in the echo area
 ;; CLEANUP: Configuration params
-;; CLEANUP: Choose a name
 ;; TODO: Package
 ;; TODO: Determine screen geometry
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;; Code:
 (require 'cl)
 
 (defvar stupider-buffer-name "stupider" "The name of the buffer created by `stupider'.")
@@ -88,7 +82,7 @@ Words from BUFFER are displayed individually and progressed by an adjustable tim
         (make-frame `((height . 1)
                       (width . 30)
                       (top . 100)
-                      (mode-line-format . nil)
+                      (mode-line-format . nil) ;; This no longer works. A workaround is below.
                       (cursor-type . nil)
                       (minibuffer . nil)
                       (left-margin . 0)
@@ -101,9 +95,12 @@ Words from BUFFER are displayed individually and progressed by an adjustable tim
                       (fill-column . 30))))
   (run-at-time "0.2 seconds" nil
                ;; The delayed execution is a bug workaround
-               ;; for an incorrectly calculated length.
+               ;; for an incorrectly calculated length,
+               ;; and hiding of the mode line.
                (lambda ()
-                 (center-frame stupider-frame)))
+                 (center-frame stupider-frame)
+                 (setq mode-line-format nil)
+                 (set-frame-height stupider-frame 1)))
   (setq stupider-buffer (get-buffer-create stupider-buffer-name))
   
   (with-current-buffer *source-buffer*
@@ -174,7 +171,7 @@ Words from BUFFER are displayed individually and progressed by an adjustable tim
   "Speed control."
   (interactive)
   (setq pause-time
-        (max (- pause-time 0.1)
+        (max (- pause-time 0.04)
              min-pause-time))
   (stupider--log))
 
